@@ -26,6 +26,7 @@
       <param name="labels_size" type="string" _gui-text="Labels font size (half: 9px)">10px</param>
       <param name="line_width" type="string" _gui-text="Line width (half: 1.2px)">1.6px</param>
       <param name="color_pal" type="optiongroup" _gui-text="Color palette">
+        <_option value="original">Keep original</_option>
         <_option value="chamon_pal">Chamon</_option>
         <_option value="brewer_set1">Brewer's Set1</_option>
         <_option value="brewer_dark2">Brewer's Dark2</_option>

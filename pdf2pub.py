@@ -46,7 +46,7 @@ class ChamonEffect(inkex.Effect):
                                      default='1.6px', help='Line width')
         self.OptionParser.add_option('--color_pal', action='store',
                                      type='string', dest='color_pal',
-                                     default='chamon_pal',
+                                     default='original',
                                      help='Color palette')
 
     def effect(self):
@@ -59,7 +59,8 @@ class ChamonEffect(inkex.Effect):
             'brewer_dark2': ['#1b9e77', '#d95f02', '#7570b3', '#e7298a',
                              '#66a61e', '#e6ab02', '#a6761d', '#666666'],
             'chamon_pal': ['#3e89c8', '#e41a1c', '#5ed046', '#000000',
-                           '#ffab26', '#ffff33']}
+                           '#ffab26', '#ffff33'],
+            'original': None}
 
         # Retrieve user options
         form = self.options.format
@@ -421,11 +422,13 @@ class ChamonEffect(inkex.Effect):
                 style['stroke-width'] = str(line_width/scaling) + 'px'
 
                 # 5b. Alter colors of plot traces
-                style['stroke'] = color_pal[color_idx]
+                if color_pal is not None:
+                    style['stroke'] = color_pal[color_idx]
 
                 path.set('style', formatStyle(style))
 
-            color_idx = (color_idx + 1) % len(color_pal)
+            if color_pal is not None:
+                color_idx = (color_idx + 1) % len(color_pal)
 
         # 6. Additional fixups (grids) ########################################
 
