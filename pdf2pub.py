@@ -9,7 +9,7 @@ from simpletransform import *
 from simplepath import *
 
 
-def stop(msg = "Error!"):
+def stop(msg="Error!"):
     inkex.errormsg(msg)
     sys.exit(0)
 
@@ -23,31 +23,31 @@ class ChamonEffect(inkex.Effect):
         # Calls base class constructor
         inkex.Effect.__init__(self)
 
-        self.OptionParser.add_option('--tabs', action = 'store',
-            type = 'string', dest = 'tabs', default = 'full',
-            help = 'Tabs')
-        self.OptionParser.add_option('--format', action = 'store',
-            type = 'string', dest = 'format', default = 'full',
-            help = 'Format')
-        self.OptionParser.add_option('--width', action = 'store',
-            type = 'string', dest = 'width', default = '260px',
-            help = 'Plot width')
-        self.OptionParser.add_option('--font_family', action = 'store',
-            type = 'string', dest = 'font_family', default = 'Arial',
-            help = 'Font')
-        self.OptionParser.add_option('--ticks_size', action = 'store',
-            type = 'string', dest = 'ticks_size', default = '10px',
-            help = 'Ticks font size')
-        self.OptionParser.add_option('--labels_size', action = 'store',
-            type = 'string', dest = 'labels_size', default = '8px',
-            help = 'Labels font size')
-        self.OptionParser.add_option('--line_width', action = 'store',
-            type = 'string', dest = 'line_width', default = '1.6px',
-            help = 'Line width')
-        self.OptionParser.add_option('--color_pal', action = 'store',
-            type = 'string', dest = 'color_pal', default = 'chamon_pal',
-            help = 'Color palette')
-
+        self.OptionParser.add_option('--tabs', action='store',
+                                     type='string', dest='tabs',
+                                     default='full', help='Tabs')
+        self.OptionParser.add_option('--format', action='store',
+                                     type='string', dest='format',
+                                     default='full', help='Format')
+        self.OptionParser.add_option('--width', action='store',
+                                     type='string', dest='width',
+                                     default='260px', help='Plot width')
+        self.OptionParser.add_option('--font_family', action='store',
+                                     type='string', dest='font_family',
+                                     default='Arial', help='Font')
+        self.OptionParser.add_option('--ticks_size', action='store',
+                                     type='string', dest='ticks_size',
+                                     default='10px', help='Ticks font size')
+        self.OptionParser.add_option('--labels_size', action='store',
+                                     type='string', dest='labels_size',
+                                     default='8px', help='Labels font size')
+        self.OptionParser.add_option('--line_width', action='store',
+                                     type='string', dest='line_width',
+                                     default='1.6px', help='Line width')
+        self.OptionParser.add_option('--color_pal', action='store',
+                                     type='string', dest='color_pal',
+                                     default='chamon_pal',
+                                     help='Color palette')
 
     def effect(self):
         """Effect behaviour"""
@@ -112,8 +112,10 @@ class ChamonEffect(inkex.Effect):
         xgrid = []
         ygrid = []
 
-        for element in root_node.xpath('//svg:path[@style]', namespaces=inkex.NSS):
-            if parseStyle(element.get('style')).get('stroke-dasharray') != 'none':
+        for element in root_node.xpath('//svg:path[@style]',
+                                       namespaces=inkex.NSS):
+            if (parseStyle(element.get('style')).get('stroke-dasharray') !=
+                    'none'):
                 path = parsePath(element.get('d'))
                 # Eliminate zero length elements
                 if path[0][1] != path[1][1]:
@@ -141,14 +143,18 @@ class ChamonEffect(inkex.Effect):
             if x_min > path[0][1][0]:
                 x_min = path[0][1][0]
                 bbox['left'] = {'node': element,
-                                'coord': [{'x': path[0][1][0], 'y': path[0][1][1]},
-                                          {'x': path[1][1][0], 'y': path[1][1][1]}]}
+                                'coord': [{'x': path[0][1][0],
+                                           'y': path[0][1][1]},
+                                          {'x': path[1][1][0],
+                                           'y': path[1][1][1]}]}
 
             if x_max < path[0][1][0]:
                 x_max = path[0][1][0]
                 bbox['right'] = {'node': element,
-                                 'coord': [{'x': path[0][1][0], 'y': path[0][1][1]},
-                                           {'x': path[1][1][0], 'y': path[1][1][1]}]}
+                                 'coord': [{'x': path[0][1][0],
+                                            'y': path[0][1][1]},
+                                           {'x': path[1][1][0],
+                                            'y': path[1][1][1]}]}
 
         # Top-bottom borders
         y_min = float('inf')
@@ -159,14 +165,18 @@ class ChamonEffect(inkex.Effect):
             if y_min > path[0][1][1]:
                 y_min = path[0][1][1]
                 bbox['top'] = {'node': element,
-                               'coord': [{'x': path[0][1][0], 'y': path[0][1][1]},
-                                         {'x': path[1][1][0], 'y': path[1][1][1]}]}
+                               'coord': [{'x': path[0][1][0],
+                                          'y': path[0][1][1]},
+                                         {'x': path[1][1][0],
+                                          'y': path[1][1][1]}]}
 
             if y_max < path[0][1][1]:
                 y_max = path[0][1][1]
                 bbox['bottom'] = {'node': element,
-                                  'coord': [{'x': path[0][1][0], 'y': path[0][1][1]},
-                                            {'x': path[1][1][0], 'y': path[1][1][1]}]}
+                                  'coord': [{'x': path[0][1][0],
+                                             'y': path[0][1][1]},
+                                            {'x': path[1][1][0],
+                                             'y': path[1][1][1]}]}
 
         # 2c. Labels
         title = None
@@ -177,7 +187,7 @@ class ChamonEffect(inkex.Effect):
         y_max = float('-inf')
 
         for element in root_node.iter(inkex.addNS('text', 'svg')):
-            mat = parseTransform(element.get('transform','scale(1,1)'))
+            mat = parseTransform(element.get('transform', 'scale(1,1)'))
             xt = inkex.unittouu(element.get('x'))
             yt = inkex.unittouu(element.get('y'))
             x = mat[0][0]*xt + mat[0][1]*yt + mat[0][2]
@@ -188,7 +198,8 @@ class ChamonEffect(inkex.Effect):
                 title = element
 
             if y > bbox['bottom']['coord'][0]['y'] and y_max < y:
-                # Lowest text element (largest y) below plot area is the x-axis label
+                # Lowest text element (largest y) below plot area
+                # is the x-axis label
                 y_max = y
                 xlabel = element
 
@@ -199,7 +210,7 @@ class ChamonEffect(inkex.Effect):
                 ylabel = element
 
         # Remove plot title
-        if title != None:
+        if title is not None:
             title.getparent().remove(title)
             del title
 
@@ -210,9 +221,9 @@ class ChamonEffect(inkex.Effect):
 
         # Compile list of IDs to ignore (xlabel and ylabel, if they exist)
         labels_id = []
-        if xlabel != None:
+        if xlabel is not None:
             labels_id.append(xlabel.get('id'))
-        if ylabel != None:
+        if ylabel is not None:
             labels_id.append(ylabel.get('id'))
 
         for element in root_node.xpath('//svg:text', namespaces=inkex.NSS):
@@ -220,11 +231,13 @@ class ChamonEffect(inkex.Effect):
                 x = inkex.unittouu(element.get('x'))
                 y = inkex.unittouu(element.get('y'))
 
-                if x > bbox['left']['coord'][0]['x'] and y > bbox['bottom']['coord'][0]['y']:
+                if (x > bbox['left']['coord'][0]['x']
+                        and y > bbox['bottom']['coord'][0]['y']):
                     # xticks
                     xticks.append(element)
 
-                elif x < bbox['left']['coord'][0]['x'] and y < bbox['bottom']['coord'][0]['y']:
+                elif (x < bbox['left']['coord'][0]['x']
+                        and y < bbox['bottom']['coord'][0]['y']):
                     # yticks
                     yticks.append(element)
 
@@ -234,11 +247,12 @@ class ChamonEffect(inkex.Effect):
 
         # Decide corner ticks
         if len(cornerticks) != 0 and len(cornerticks) != 2:
-            stop('Error! You should have 2 corner ticks, you only have %s.'
-                    % len(cornerticks))
+            stop('Error! You should have 2 corner ticks, '
+                 'you only have %s.' % len(cornerticks))
         else:
             # Lowest tick (largest y) is xtick
-            if inkex.unittouu(cornerticks[0].get('y')) > inkex.unittouu(cornerticks[1].get('y')):
+            if (inkex.unittouu(cornerticks[0].get('y')) >
+                    inkex.unittouu(cornerticks[1].get('y'))):
                 xticks.append(cornerticks[0])
                 yticks.append(cornerticks[1])
             else:
@@ -246,7 +260,6 @@ class ChamonEffect(inkex.Effect):
                 yticks.append(cornerticks[0])
 
         del cornerticks
-
 
         # 3. Resize figure ####################################################
         # 3a. Group all
@@ -260,14 +273,15 @@ class ChamonEffect(inkex.Effect):
 
         # 3b. Rescale
         # Estimate plot area size
-        box_width = bbox['right']['coord'][0]['x'] - bbox['left']['coord'][0]['x']
-        box_height = bbox['bottom']['coord'][0]['y'] - bbox['top']['coord'][0]['y']
+        box_width = bbox['right']['coord'][0]['x'] - bbox['left']['coord'][0]['x']  # NOQA
+        box_height = bbox['bottom']['coord'][0]['y'] - bbox['top']['coord'][0]['y']  # NOQA
 
         # Evaluate scaling factor given desired width
         scaling = width / box_width
 
         # Scale plot
-        applyTransformToNode(parseTransform('scale(%s,%s)' % (scaling, scaling)), group)
+        applyTransformToNode(
+            parseTransform('scale(%s,%s)' % (scaling, scaling)), group)
 
         # 4. Fix text #########################################################
         # Compute font sizes
@@ -318,7 +332,7 @@ class ChamonEffect(inkex.Effect):
             element[0].set('style', formatStyle(style))
 
         # 4d. Format labels
-        if xlabel != None:
+        if xlabel is not None:
             style = parseStyle(xlabel[0].get('style'))
             style['font-size'] = labels_size_str
             style['text-align'] = 'center'
@@ -326,7 +340,7 @@ class ChamonEffect(inkex.Effect):
             xlabel.set('style', formatStyle(style))
             xlabel[0].set('style', formatStyle(style))
 
-        if ylabel != None:
+        if ylabel is not None:
             style = parseStyle(ylabel[0].get('style'))
             style['font-size'] = labels_size_str
             style['text-align'] = 'center'
@@ -336,19 +350,20 @@ class ChamonEffect(inkex.Effect):
 
         # 5. Reposition texts (align, place) ##################################
         # 5a. Align labels
-        if xlabel != None:
-            y = bbox['bottom']['coord'][0]['y'] + (ticks_size + 1.1*labels_size)/scaling
+        if xlabel is not None:
+            y = bbox['bottom']['coord'][0]['y'] + \
+                (ticks_size + 1.1*labels_size) / scaling
             x1 = bbox['bottom']['coord'][0]['x']
             x2 = bbox['bottom']['coord'][1]['x']
-            xlabel.set('x', str(min(x1,x2) + abs(x1-x2)/2))
+            xlabel.set('x', str(min(x1, x2) + abs(x1 - x2) / 2))
             xlabel.set('y', str(y))
 
-        if ylabel != None:
+        if ylabel is not None:
             x = bbox['left']['coord'][0]['x'] - (2.5*ticks_size)/scaling
             y1 = bbox['left']['coord'][0]['y']
             y2 = bbox['left']['coord'][1]['y']
             ylabel.set('y', str(x))
-            ylabel.set('x', str(-(min(y1,y2) + abs(y1-y2)/2)))
+            ylabel.set('x', str(-(min(y1, y2) + abs(y1 - y2)/2)))
 
         # 5b. Align xticks
         y = bbox['bottom']['coord'][0]['y'] + (ticks_size + 1)/scaling
@@ -411,7 +426,6 @@ class ChamonEffect(inkex.Effect):
                 path.set('style', formatStyle(style))
 
             color_idx = (color_idx + 1) % len(color_pal)
-
 
         # 6. Additional fixups (grids) ########################################
 
