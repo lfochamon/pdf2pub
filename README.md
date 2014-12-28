@@ -4,6 +4,12 @@ pdf2pub
 An Inkscape extension to format plots exported from MATLAB for publication.
 
 
+Installation
+============
+
+Simply copy `pdf2pub.inx` and `pdf2pub.py` to your Inkscape extention folder (something like `{inkscape}/share/extensions`) and restart Inkscape. Tested on Inkscape 0.48.
+
+
 Usage
 =====
 
