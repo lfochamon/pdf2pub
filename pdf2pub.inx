@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
-  <_name>Chamon</_name>
+  <_name>pdf2pub</_name>
   <id>www.lps.usp.br/chamon</id>
-  <dependency type="executable" location="extensions">chamon.py</dependency>
+
+  <dependency type="executable" location="extensions">pdf2pub.py</dependency>
   <dependency type="executable" location="extensions">inkex.py</dependency>
+  <dependency type="executable" location="extensions">simpletransform.py</dependency>
+  <dependency type="executable" location="extensions">simplepath.py</dependency>
+  <dependency type="executable" location="extensions">simplestyle.py</dependency>
+
   <param name="tabs" type="notebook">
+
     <page name="defaults" _gui-text="Format">
       <param name="format" type="optiongroup" _gui-text="Plot format">
         <_option value="full">Full</_option>
@@ -12,6 +18,7 @@
         <_option value="custom">Custom</_option>
       </param>
     </page>
+
     <page name="custom" _gui-text="Custom">
       <param name="width" type="string" _gui-text="Plot width (half: 130px)">260px</param>
       <param name="font_family" type="string" _gui-text="Font">Arial</param>
@@ -24,21 +31,14 @@
         <_option value="brewer_dark2">Brewer's Dark2</_option>
       </param>
     </page>
+
   </param>
 
   <effect needs-live-preview="false">
     <object-type>all</object-type>
-    <!-- <effects-menu>
-       <submenu _name="Examples"/>
-    </effects-menu> -->
   </effect>
+
   <script>
-    <command reldir="extensions" interpreter="python">chamon.py</command>
+    <command reldir="extensions" interpreter="python">pdf2pub.py</command>
   </script>
 </inkscape-extension>
-
-<!--
-brewer_set1 = ['#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#ffff33','#a65628','#f781bf','#999999']
-brewer_dark2 = ['#1b9e77','#d95f02','#7570b3','#e7298a','#66a61e','#e6ab02','#a6761d','#666666']
-chamon_pal = ['#3e89c8','#e41a1c','#5ed046','#000000','#ffab26','#ffff33']
--->
