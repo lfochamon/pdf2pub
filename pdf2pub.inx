@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
-  <_name>pdf2pub</_name>
-  <id>www.lps.usp.br/chamon</id>
+  <name>pdf2pub</name>
+  <id>www.seas.upenn.edu/luizf</id>
 
   <dependency type="executable" location="extensions">pdf2pub.py</dependency>
   <dependency type="executable" location="extensions">inkex.py</dependency>
@@ -17,23 +17,37 @@
         <_option value="half">Half</_option>
         <_option value="custom">Custom</_option>
       </param>
+
+      <param name="xticks" type="string" _gui-text="x-ticks (comma separated list)"></param>
+      <param name="yticks" type="string" _gui-text="y-ticks (comma separated list)"></param>
+      <param name="color_pal" type="enum" _gui-text="Color palette">
+        <_item value="original">Keep original</_item>
+        <item value="chamon_pal">Chamon's Set1</item>
+        <item value="brewer_set1">Brewer's Set1</item>
+        <item value="brewer_dark2">Brewer's Dark2</item>
+      </param>
+      <param name="bbox_color_find" type="string" _gui-text="Box original color">#262626</param>
+      <param name="bbox_color" type="string" _gui-text="Box target color">#262626</param>
+      <param name="grid_color_find" type="string" _gui-text="Grid original color">#dfdfdf</param>
+      <param name="grid_color" type="string" _gui-text="Grid target color">#dfdfdf</param>
+
+      <param name="elements_dict" type="boolean" _gui-text="Legend and additional elements">true</param>
     </page>
 
     <page name="custom" _gui-text="Custom">
       <param name="width" type="string" _gui-text="Plot width (half: 130px)">260px</param>
-      <param name="font_family" type="string" _gui-text="Font">Arial</param>
-      <param name="ticks_size" type="string" _gui-text="Ticks font size (half: 7px)">8px</param>
-      <param name="labels_size" type="string" _gui-text="Labels font size (half: 9px)">10px</param>
-      <param name="line_width" type="string" _gui-text="Line width (half: 1.2px)">1.6px</param>
-      <param name="color_pal" type="optiongroup" _gui-text="Color palette">
-        <_option value="original">Keep original</_option>
-        <_option value="chamon_pal">Chamon</_option>
-        <_option value="brewer_set1">Brewer's Set1</_option>
-        <_option value="brewer_dark2">Brewer's Dark2</_option>
-      </param>
+      <param name="height" type="string" _gui-text="Plot height (half: 98px)">196px</param>
+      <param name="font_family" type="string" _gui-text="Font family">CMU Serif</param>
+      <param name="font_color" type="string" _gui-text="Font color">#262626</param>
+      <param name="ticks_size" type="string" _gui-text="Tick labels font size (half: 7px)">8px</param>
+      <param name="labels_size" type="string" _gui-text="Axis labels font size (half: 9px)">10px</param>
+      <param name="plot_stroke_width" type="string" _gui-text="Plot line width">1.2px</param>
+      <param name="bbox_stroke_width" type="string" _gui-text="Box/grid line width">0.4px</param>
     </page>
 
   </param>
+
+
 
   <effect needs-live-preview="false">
     <object-type>all</object-type>
