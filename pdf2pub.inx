@@ -26,10 +26,10 @@
         <item value="brewer_set1">Brewer's Set1</item>
         <item value="brewer_dark2">Brewer's Dark2</item>
       </param>
-      <param name="bbox_color_find" type="string" _gui-text="Box original color">#262626</param>
-      <param name="bbox_color" type="string" _gui-text="Box target color">#262626</param>
-      <param name="grid_color_find" type="string" _gui-text="Grid original color">#dfdfdf</param>
-      <param name="grid_color" type="string" _gui-text="Grid target color">#dfdfdf</param>
+      <param name="bbox_style_find" type="string" _gui-text="Find bounding box style">stroke:#262626</param>
+      <param name="bbox_style" type="string" _gui-text="Bounding box style">stroke:#262626;stroke-width:0.4px</param>
+      <param name="grid_style_find" type="string" _gui-text="Find grid style">stroke:#dfdfdf</param>
+      <param name="grid_style" type="string" _gui-text="Grid style">stroke:#dfdfdf;stroke-width:0.4px</param>
 
       <param name="elements_dict" type="boolean" _gui-text="Legend and additional elements">true</param>
     </page>
@@ -42,7 +42,6 @@
       <param name="ticks_size" type="string" _gui-text="Tick labels font size (half: 7px)">8px</param>
       <param name="labels_size" type="string" _gui-text="Axis labels font size (half: 9px)">10px</param>
       <param name="plot_stroke_width" type="string" _gui-text="Plot line width">1.2px</param>
-      <param name="bbox_stroke_width" type="string" _gui-text="Box/grid line width">0.4px</param>
     </page>
 
   </param>

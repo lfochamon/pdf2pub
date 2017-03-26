@@ -49,18 +49,18 @@ class pdf2pub(inkex.Effect):
                                      type='string', dest='color_pal',
                                      default='original',
                                      help='Color palette')
-        self.OptionParser.add_option('--bbox_color_find', action='store',
-                                     type='string', dest='bbox_color_find',
-                                     default='#262626', help='Bounding box original color')
-        self.OptionParser.add_option('--bbox_color', action='store',
-                                     type='string', dest='bbox_color',
-                                     default='#262626', help='Bounding box color')
-        self.OptionParser.add_option('--grid_color_find', action='store',
-                                     type='string', dest='grid_color_find',
-                                     default='#dfdfdf', help='Grid original color')
-        self.OptionParser.add_option('--grid_color', action='store',
-                                     type='string', dest='grid_color',
-                                     default='#dfdfdf', help='Grid color')
+        self.OptionParser.add_option('--bbox_style_find', action='store',
+                                     type='string', dest='bbox_style_find',
+                                     default='stroke:#262626', help='Find bounding box style')
+        self.OptionParser.add_option('--bbox_style', action='store',
+                                     type='string', dest='bbox_style',
+                                     default='stroke:#262626;stroke-width:0.4px', help='Bounding box style')
+        self.OptionParser.add_option('--grid_style_find', action='store',
+                                     type='string', dest='grid_style_find',
+                                     default='stroke:#dfdfdf', help='Find grid style')
+        self.OptionParser.add_option('--grid_style', action='store',
+                                     type='string', dest='grid_style',
+                                     default='stroke:#dfdfdf;stroke-width:0.4px', help='Grid style')
         self.OptionParser.add_option('--elements_dict', action='store',
                                      type='string', dest='elements_dict',
                                      default='true', help='Legend and additional elements')
@@ -87,9 +87,6 @@ class pdf2pub(inkex.Effect):
         self.OptionParser.add_option('--plot_stroke_width', action='store',
                                      type='string', dest='plot_stroke_width',
                                      default='1.6px', help='Plot line width')
-        self.OptionParser.add_option('--bbox_stroke_width', action='store',
-                                     type='string', dest='bbox_stroke_width',
-                                     default='0.4px', help='Bounding box/grid line width')
 
 
     def effect(self):
@@ -115,8 +112,6 @@ class pdf2pub(inkex.Effect):
             ticks_size = 8
             labels_size = 10
             plot_stroke_width = 1.2
-            bbox_stroke_width = 0.4
-            grid_stroke_width = 0.4
             color_pal = color_palettes[self.options.color_pal]
         elif form == 'half':
             width = 130
@@ -126,8 +121,6 @@ class pdf2pub(inkex.Effect):
             ticks_size = 7
             labels_size = 9
             plot_stroke_width = 1.2
-            bbox_stroke_width = 0.4
-            grid_stroke_width = 0.4
             color_pal = color_palettes[self.options.color_pal]
         elif form == 'custom':
             width = self.unittouu(self.options.width)
@@ -137,8 +130,6 @@ class pdf2pub(inkex.Effect):
             ticks_size = self.unittouu(self.options.ticks_size)
             labels_size = self.unittouu(self.options.labels_size)
             plot_stroke_width = self.unittouu(self.options.plot_stroke_width)
-            bbox_stroke_width = self.unittouu(self.options.bbox_stroke_width)
-            grid_stroke_width = self.unittouu(self.options.bbox_stroke_width)
             color_pal = color_palettes[self.options.color_pal]
         else:
             stop('Error! This format "%s" is unknown...' % form)
@@ -155,10 +146,10 @@ class pdf2pub(inkex.Effect):
             yticks = [tick.strip() for tick in self.options.yticks.split(',')]
 
         # Retrieve general presets
-        bbox_stroke_color_find = self.options.bbox_color_find.lower()
-        bbox_stroke_color = self.options.bbox_color.lower()
-        grid_stroke_color_find = self.options.grid_color_find.lower()
-        grid_stroke_color = self.options.grid_color.lower()
+        bbox_style_find = parseStyle(self.options.bbox_style_find)
+        bbox_style = parseStyle(self.options.bbox_style)
+        grid_style_find = parseStyle(self.options.grid_style_find)
+        grid_style = parseStyle(self.options.grid_style)
         if self.options.elements_dict == 'true':
             elements_dict = True
         else:
@@ -242,6 +233,11 @@ class pdf2pub(inkex.Effect):
         # ... clip paths, ...
         for element in root_node.iter(inkex.addNS('clipPath', 'svg')):
             deleted.append(element.get('id'))
+
+            # Clip paths have path nodes below that we'll need to ignore later
+            for child in element:
+                deleted.append(child.get('id'))
+
             element.getparent().remove(element)
 
         # ... and labels
@@ -318,72 +314,89 @@ class pdf2pub(inkex.Effect):
 
         for element in root_node.xpath('//svg:path[@style]',
                                        namespaces=inkex.NSS):
-            stroke = parseStyle(element.get('style')).get('stroke').lower()
-            if stroke == bbox_stroke_color_find:
+            element_style = parseStyle(element.get('style'))
+
+            if all([element_style[style].lower() == bbox_style_find[style].lower() for style in bbox_style_find.keys()]):
                 bbox.append(element)
-            elif stroke == grid_stroke_color_find:
+            elif all([element_style[style].lower() == grid_style_find[style].lower() for style in grid_style_find.keys()]):
                 grid.append(element)
 
         ### 3b. Get plot traces
         # Look for elements whose colors are not the bounding box/grid colors.
         # Get curves grouped by colors
-        curves = {}
+        curves_stroke = {}
+        curves_fill = {}
 
         for element in root_node.xpath('//svg:*[@style]', namespaces=inkex.NSS):
             if element.tag != inkex.addNS('text', 'svg'):
-                style = parseStyle(element.get('style'))
-                if style['stroke'] not in ['none', bbox_stroke_color_find, grid_stroke_color_find]:
-                    if style['stroke'] in curves.keys():
-                        curves[style['stroke']].append(element)
-                    else:
-                        curves[style['stroke']] = [element]
-                elif style['fill'] not in ['none', bbox_stroke_color_find, grid_stroke_color_find]:
-                    if style['fill'] in curves.keys():
-                        curves[style['fill']].append(element)
-                    else:
-                        curves[style['fill']] = [element]
+                if element.get('id') not in [el.get('id') for el in bbox + grid]:
+                # if any([element_style[style].lower() != bbox_style_find[style].lower() for style in bbox_style_find.keys()]) or any([element_style[style].lower() != grid_style_find[style].lower() for style in grid_style_find.keys()]):
+                    element_style = parseStyle(element.get('style'))
+
+                    if element_style['stroke'] != 'none':
+                        if element_style['stroke'] in curves_stroke.keys():
+                            curves_stroke[element_style['stroke']].append(element)
+                        else:
+                            curves_stroke[element_style['stroke']] = [element]
+
+                    if element_style['fill'] != 'none':
+                        if element_style['fill'] in curves_fill.keys():
+                            curves_fill[element_style['fill']].append(element)
+                        else:
+                            curves_fill[element_style['fill']] = [element]
 
 
         # 4. Fix grid and plot boundaries #####################################
         ### 4a. Fix bounding box
         for element in bbox:
-            style = parseStyle(element.get('style'))
+            element_style = parseStyle(element.get('style'))
 
-            # Fix thickness and color
-            style['stroke-width'] = str(bbox_stroke_width) + 'px'
-            style['stroke'] = bbox_stroke_color
+            # Fix style
+            for style in bbox_style.keys():
+                element_style[style] = bbox_style[style]
 
-            element.set('style', formatStyle(style))
+            element.set('style', formatStyle(element_style))
 
-        ### 4b. Fix bounding box
+        ### 4b. Fix grid
         for element in grid:
-            style = parseStyle(element.get('style'))
+            element_style = parseStyle(element.get('style'))
 
-            # Fix thickness and color
-            style['stroke-width'] = str(grid_stroke_width) + 'px'
-            style['stroke'] = grid_stroke_color
+            # Fix style
+            for style in grid_style.keys():
+                element_style[style] = grid_style[style]
 
-            element.set('style', formatStyle(style))
+            element.set('style', formatStyle(element_style))
 
 
         # 5. Fix plot traces ##################################################
+        ### 5a. Fix plot traces stroke and thickness
         color_idx = 0
-        for color in curves.keys():
-            for element in curves[color]:
-                style = parseStyle(element.get('style'))
+        for color in sorted(curves_stroke.keys()):
+            for element in curves_stroke[color]:
+                element_style = parseStyle(element.get('style'))
 
-                ### 5a. Fix thickness
-                if style['fill'] == 'none':
-                    style['stroke-width'] = str(plot_stroke_width) + 'px'
+                # Fix thickness
+                element_style['stroke-width'] = str(plot_stroke_width) + 'px'
 
-                ### 5b. Alter colors of plot traces
+                # Fix strokes
                 if color_pal is not None:
-                    style['stroke'] = color_pal[color_idx]
+                    element_style['stroke'] = color_pal[color_idx]
 
-                    if style['fill'] != 'none':
-                        style['fill'] = color_pal[color_idx]
+                element.set('style', formatStyle(element_style))
 
-                element.set('style', formatStyle(style))
+            if color_pal is not None:
+                color_idx = (color_idx + 1) % len(color_pal)
+
+        ### 5b. Fix plot traces fill
+        color_idx = 0
+        for color in sorted(curves_fill.keys()):
+            for element in curves_fill[color]:
+                element_style = parseStyle(element.get('style'))
+
+                if color_pal is not None:
+                    element_style['fill'] = color_pal[color_idx]
+
+                element.set('style', formatStyle(element_style))
 
             if color_pal is not None:
                 color_idx = (color_idx + 1) % len(color_pal)
@@ -586,7 +599,7 @@ class pdf2pub(inkex.Effect):
             last_id = last_id + 1
             marker_path = etree.Element('path',
                 id = 'path%d' % (last_id),
-                style = 'fill:%s;stroke:%s;fill-rule:evenodd;' % (bbox_stroke_color, bbox_stroke_color) +
+                style = 'fill:%s;stroke:%s;fill-rule:evenodd;' % (bbox_style['stroke'], bbox_style['stroke']) +
                         'fill-opacity:1;stroke-width:0.625;stroke-linejoin:round;'
                         'stroke-opacity:1',
                 d = 'M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 '
@@ -601,8 +614,8 @@ class pdf2pub(inkex.Effect):
             # Add example arrow next to plot
             last_id = last_id + 1
             marker_path = etree.Element('path',
-                style = 'color:%s;solid-color:%s;' % (bbox_stroke_color, bbox_stroke_color) +
-                        'stroke:%s;stroke-width:%s;' % (bbox_stroke_color, self.unittouu(arrow_stroke_width)/scale_size) +
+                style = 'color:%s;solid-color:%s;' % (bbox_style['stroke'], bbox_style['stroke']) +
+                        'stroke:%s;stroke-width:%s;' % (bbox_style['stroke'], self.unittouu(arrow_stroke_width)/scale_size) +
                         'marker-end:url(#marker%d);' % marker_id +
                         'mix-blend-mode:normal;color-interpolation:sRGB;'
                         'isolation:auto;color-interpolation-filters:linearRGB;'
@@ -614,12 +627,12 @@ class pdf2pub(inkex.Effect):
                         'color-rendering:auto;image-rendering:auto;shape-rendering:auto;'
                         'text-rendering:auto;enable-background:accumulate;'
                         'overflow:visible;visibility:visible',
-                d = 'M %f,%f h %f' % (400/(scale_size/scale_x), 200/(scale_size/scale_y), 15/(scale_size/scale_x)),
+                d = 'M %f,%f h %f' % (400/(scale_size/scale_x), 130/(scale_size/scale_y), 40/(scale_size/scale_x)),
                 id = 'path%d' % (last_id))
 
             main_layer.append(marker_path)
 
-            ### 7b. Legend
+            ### 7b. Stroke legend
             # [line length] / ([size scaling] / [x-axis scaling])
             legend_line_dx = legend_line_length/(scale_size/scale_x)
             # [x position] / ([size scaling] / [x-axis scaling])
@@ -629,17 +642,17 @@ class pdf2pub(inkex.Effect):
             #   taken care of by the transform in the text node
             legend_text_x = (400 + legend_line_length + 5)/scale_size
 
-            legend_entry = 0
-            for original_color in curves.keys():
-                # ([start position] + ([entry number] - 1)*[distance between legend entries]) /
+            stroke_legend_entry = 0
+            for original_color in curves_stroke.keys():
+                # ([start position] + ([stroke entry number] - 1)*[distance between legend entries]) /
                 #   ([size scaling] / [y-axis scaling])
-                legend_line_y = (220 + legend_entry*legend_entry_sep)/(scale_size/scale_y)
+                legend_line_y = (150 + stroke_legend_entry*legend_entry_sep)/(scale_size/scale_y)
                 # [legend line position] / [y-axis scaling] +
                 #   ([font size]/3 - 1) / [size scaling]
                 text_line_y = legend_line_y/scale_y + (self.unittouu('%fpt' % legend_font_size)/3 - 1)/scale_size
 
                 if color_pal is not None:
-                    legend_color = color_pal[legend_entry % len(color_pal)]
+                    legend_color = color_pal[stroke_legend_entry % len(color_pal)]
                 else:
                     legend_color = original_color
 
@@ -678,14 +691,83 @@ class pdf2pub(inkex.Effect):
 
                 last_id = last_id + 1
                 legend_tspan = etree.Element("tspan", id = 'tspan%d' % last_id)
-                legend_tspan.text = 'Entry %d' % (legend_entry + 1)
+                legend_tspan.text = 'Stroke %d' % (stroke_legend_entry + 1)
                 legend_text.append(legend_tspan)
 
                 # Add elements to layer
                 main_layer.append(legend_path)
                 main_layer.append(legend_text)
 
-                legend_entry = legend_entry + 1
+                stroke_legend_entry = stroke_legend_entry + 1
+
+
+            ### 7c. Fill legend
+            # [line length] / ([size scaling] / [x-axis scaling])
+            legend_line_dx = legend_line_length/(scale_size/scale_x)
+            # [x position] / ([size scaling] / [x-axis scaling])
+            legend_line_x = 400/(scale_size/scale_x)
+            # ([x position] + [line length] + [line-label separation]) /
+            #   ([size scaling]): the [x-axis scaling] is already
+            #   taken care of by the transform in the text node
+            legend_text_x = (400 + legend_line_length + 5)/scale_size
+
+            fill_legend_entry = 0
+            for original_color in curves_fill.keys():
+                # ([start position] + ([# of strokes entry] + 1 + [fill entry number] - 1)*[distance between legend entries]) /
+                #   ([size scaling] / [y-axis scaling])
+                legend_line_y = (150 + (stroke_legend_entry + fill_legend_entry)*legend_entry_sep)/(scale_size/scale_y)
+                # [legend line position] / [y-axis scaling] +
+                #   ([font size]/3 - 1) / [size scaling]
+                text_line_y = legend_line_y/scale_y + (self.unittouu('%fpt' % legend_font_size)/3 - 1)/scale_size
+
+                if color_pal is not None:
+                    legend_color = color_pal[fill_legend_entry % len(color_pal)]
+                else:
+                    legend_color = original_color
+
+                # Legend color marker
+                last_id = last_id + 1
+                legend_path = etree.Element('path',
+                    style = 'color:%s;solid-color:%s;' % (legend_color, legend_color) +
+                            'stroke:%s;stroke-width:%s;' % (legend_color, self.unittouu('1.5')/scale_size) +
+                            'clip-rule:nonzero;display:inline;'
+                            'overflow:visible;visibility:visible;opacity:1;'
+                            'isolation:auto;color-interpolation-filters:linearRGB;'
+                            'mix-blend-mode:normal;color-interpolation:sRGB;'
+                            'solid-opacity:1;fill:none;stroke-linecap:butt;'
+                            'fill-opacity:1;fill-rule:nonzero;'
+                            'stroke-linejoin:bevel;stroke-miterlimit:10;'
+                            'stroke-dasharray:none;stroke-dashoffset:0;'
+                            'stroke-opacity:1;color-rendering:auto;'
+                            'image-rendering:auto;shape-rendering:auto;'
+                            'text-rendering:auto;enable-background:accumulate',
+                    d = 'M %f,%f h %f' % (legend_line_x, legend_line_y, legend_line_dx),
+                    id = 'path%d' % (last_id))
+
+                # Legend label
+                last_id = last_id + 1
+                legend_text = etree.Element("text",
+                    style = 'font-family:%s;fill:%s;font-size:%fpt;' % (font_family, font_color, legend_font_size/scale_size) +
+                            'font-weight:normal;fill-opacity:1;'
+                            'text-align:start;text-anchor:start;'
+                            'fill-rule:nonzero;stroke:none;line-height:125%;'
+                            'letter-spacing:0px;word-spacing:0px;font-stretch:normal;'
+                            'font-variant:normal;writing-mode:lr-tb;',
+                    id = 'text%d' % last_id,
+                    transform = 'scale(%.8f,%.8f)' % (scale_x, scale_y),
+                    x = '%f' % (legend_text_x),
+                    y = '%f' % (text_line_y))
+
+                last_id = last_id + 1
+                legend_tspan = etree.Element("tspan", id = 'tspan%d' % last_id)
+                legend_tspan.text = 'Fill %d' % (fill_legend_entry + 1)
+                legend_text.append(legend_tspan)
+
+                # Add elements to layer
+                main_layer.append(legend_path)
+                main_layer.append(legend_text)
+
+                fill_legend_entry = fill_legend_entry + 1
 
 
 if __name__ == '__main__':
