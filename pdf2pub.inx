@@ -17,7 +17,6 @@
         <_option value="half">Half</_option>
         <_option value="custom">Custom</_option>
       </param>
-
       <param name="xticks" type="string" _gui-text="x-ticks (comma separated list)"></param>
       <param name="yticks" type="string" _gui-text="y-ticks (comma separated list)"></param>
       <param name="color_pal" type="enum" _gui-text="Color palette">
@@ -27,10 +26,7 @@
         <item value="brewer_dark2">Brewer's Dark2</item>
       </param>
       <param name="bbox_style_find" type="string" _gui-text="Find bounding box style">stroke:#262626</param>
-      <param name="bbox_style" type="string" _gui-text="Bounding box style">stroke:#262626;stroke-width:0.4px</param>
       <param name="grid_style_find" type="string" _gui-text="Find grid style">stroke:#dfdfdf</param>
-      <param name="grid_style" type="string" _gui-text="Grid style">stroke:#dfdfdf;stroke-width:0.4px</param>
-
       <param name="elements_dict" type="boolean" _gui-text="Legend and additional elements">true</param>
     </page>
 
@@ -42,11 +38,19 @@
       <param name="ticks_size" type="string" _gui-text="Tick labels font size (half: 7px)">8px</param>
       <param name="labels_size" type="string" _gui-text="Axis labels font size (half: 9px)">10px</param>
       <param name="plot_stroke_width" type="string" _gui-text="Plot line width">1.2px</param>
+      <param name="bbox_style" type="string" _gui-text="Bounding box style">
+        stroke:#262626;fill:none;stroke-width:0.4px;stroke-linecap:square;
+        stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;
+        stroke-opacity:1
+      </param>
+      <param name="grid_style" type="string" _gui-text="Grid style">
+        stroke:#dfdfdf;fill:none;stroke-width:0.4px;stroke-linecap:square;
+        stroke-linejoin:round;stroke-miterlimit:10;stroke-dasharray:none;
+        stroke-opacity:1
+      </param>
     </page>
 
   </param>
-
-
 
   <effect needs-live-preview="false">
     <object-type>all</object-type>

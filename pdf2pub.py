@@ -52,15 +52,9 @@ class pdf2pub(inkex.Effect):
         self.OptionParser.add_option('--bbox_style_find', action='store',
                                      type='string', dest='bbox_style_find',
                                      default='stroke:#262626', help='Find bounding box style')
-        self.OptionParser.add_option('--bbox_style', action='store',
-                                     type='string', dest='bbox_style',
-                                     default='stroke:#262626;stroke-width:0.4px', help='Bounding box style')
         self.OptionParser.add_option('--grid_style_find', action='store',
                                      type='string', dest='grid_style_find',
                                      default='stroke:#dfdfdf', help='Find grid style')
-        self.OptionParser.add_option('--grid_style', action='store',
-                                     type='string', dest='grid_style',
-                                     default='stroke:#dfdfdf;stroke-width:0.4px', help='Grid style')
         self.OptionParser.add_option('--elements_dict', action='store',
                                      type='string', dest='elements_dict',
                                      default='true', help='Legend and additional elements')
@@ -87,6 +81,12 @@ class pdf2pub(inkex.Effect):
         self.OptionParser.add_option('--plot_stroke_width', action='store',
                                      type='string', dest='plot_stroke_width',
                                      default='1.6px', help='Plot line width')
+        self.OptionParser.add_option('--bbox_style', action='store',
+                                     type='string', dest='bbox_style',
+                                     default='stroke:#262626;stroke-width:0.4px', help='Bounding box style')
+        self.OptionParser.add_option('--grid_style', action='store',
+                                     type='string', dest='grid_style',
+                                     default='stroke:#dfdfdf;stroke-width:0.4px', help='Grid style')
 
 
     def effect(self):
@@ -113,6 +113,12 @@ class pdf2pub(inkex.Effect):
             labels_size = 10
             plot_stroke_width = 1.2
             color_pal = color_palettes[self.options.color_pal]
+            bbox_style = parseStyle('stroke:#262626;fill:none;stroke-width:0.4px;'
+                'stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:10;'
+                'stroke-dasharray:none;stroke-opacity:1')
+            grid_style = parseStyle('stroke:#dfdfdf;fill:none;stroke-width:0.4px;'
+                'stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:10;'
+                'stroke-dasharray:none;stroke-opacity:1')
         elif form == 'half':
             width = 130
             height = 98
@@ -122,6 +128,12 @@ class pdf2pub(inkex.Effect):
             labels_size = 9
             plot_stroke_width = 1.2
             color_pal = color_palettes[self.options.color_pal]
+            bbox_style = parseStyle('stroke:#262626;fill:none;stroke-width:0.4px;'
+                'stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:10;'
+                'stroke-dasharray:none;stroke-opacity:1')
+            grid_style = parseStyle('stroke:#dfdfdf;fill:none;stroke-width:0.4px;'
+                'stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:10;'
+                'stroke-dasharray:none;stroke-opacity:1')
         elif form == 'custom':
             width = self.unittouu(self.options.width)
             height = self.unittouu(self.options.height)
@@ -131,6 +143,8 @@ class pdf2pub(inkex.Effect):
             labels_size = self.unittouu(self.options.labels_size)
             plot_stroke_width = self.unittouu(self.options.plot_stroke_width)
             color_pal = color_palettes[self.options.color_pal]
+            bbox_style = parseStyle(self.options.bbox_style)
+            grid_style = parseStyle(self.options.grid_style)
         else:
             stop('Error! This format "%s" is unknown...' % form)
 
@@ -147,9 +161,7 @@ class pdf2pub(inkex.Effect):
 
         # Retrieve general presets
         bbox_style_find = parseStyle(self.options.bbox_style_find)
-        bbox_style = parseStyle(self.options.bbox_style)
         grid_style_find = parseStyle(self.options.grid_style_find)
-        grid_style = parseStyle(self.options.grid_style)
         if self.options.elements_dict == 'true':
             elements_dict = True
         else:
