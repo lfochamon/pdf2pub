@@ -80,7 +80,7 @@ class pdf2pub(inkex.Effect):
                                      default='8px', help='Axis labels font size')
         self.OptionParser.add_option('--plot_stroke_width', action='store',
                                      type='string', dest='plot_stroke_width',
-                                     default='1.6px', help='Plot line width')
+                                     default='1.2px', help='Plot line width')
         self.OptionParser.add_option('--bbox_style', action='store',
                                      type='string', dest='bbox_style',
                                      default='stroke:#262626;stroke-width:0.4px', help='Bounding box style')
@@ -548,7 +548,7 @@ class pdf2pub(inkex.Effect):
 
         last_id = last_id + 1
         xlab = etree.Element("text",
-            style = 'font-family:%s;fill:%s;font-size:%fpt;' % (font_family, font_color, ticks_size/scale_size) +
+            style = 'font-family:%s;fill:%s;font-size:%fpt;' % (font_family, font_color, labels_size/scale_size) +
                     'font-weight:normal;fill-opacity:1;'
                     'text-align:center;text-anchor:middle;'
                     'fill-rule:nonzero;stroke:none;line-height:125%;'
@@ -573,7 +573,7 @@ class pdf2pub(inkex.Effect):
 
         last_id = last_id + 1
         ylab = etree.Element("text",
-            style = 'font-family:%s;fill:%s;font-size:%fpt;' % (font_family, font_color, ticks_size/scale_size) +
+            style = 'font-family:%s;fill:%s;font-size:%fpt;' % (font_family, font_color, labels_size/scale_size) +
                     'font-weight:normal;fill-opacity:1;'
                     'text-align:center;text-anchor:middle;'
                     'fill-rule:nonzero;stroke:none;line-height:125%;'
