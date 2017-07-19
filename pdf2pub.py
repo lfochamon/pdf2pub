@@ -474,9 +474,9 @@ class pdf2pub(inkex.Effect):
                             'Filling up with placeholders.\n')
             xticks.extend(['X'] * (len(xgrid)-len(xticks)))
 
-        # ([x-axis position] + [font height]) / scale_y +
+        # ([x-axis position] + [font height] / scale_size) / scale_y +
         #   [distance from axis to tick (~5px)] / scale_size
-        xtick_y = (xaxis + self.unittouu('%fpt' % ticks_size))/scale_y + 5/scale_size
+        xtick_y = (xaxis + self.unittouu('%fpt' % (ticks_size/scale_size)))/scale_y + 5/scale_size
 
         for (xtick,xticklabel) in zip(sorted(xgrid),xticks):
             # [position of tick along axis] / scale_x
@@ -522,7 +522,7 @@ class pdf2pub(inkex.Effect):
 
         for (ytick,yticklabel) in zip(sorted(ygrid, reverse=True),yticks):
             # ([position of tick along axis] + [font height]/2) / scale_y
-            ytick_y = (ytick + self.unittouu('%fpt' % ticks_size)/2)/scale_y
+            ytick_y = (ytick + self.unittouu('%fpt' % (ticks_size/scale_size))/2)/scale_y
 
             last_id = last_id + 1
             tspan = etree.Element("tspan", id = 'tspan%d' % last_id)
@@ -551,7 +551,7 @@ class pdf2pub(inkex.Effect):
         xlab_x = (yaxis + plot_width/2)/scale_x
         # [tick position] + [font height]/scale_x +
         #   [distance from tick to label (~6pt)]/scale_x
-        xlab_y = xtick_y + self.unittouu('%fpt' % labels_size)/scale_y + 9/scale_size
+        xlab_y = xtick_y + self.unittouu('%fpt' % (labels_size/scale_size))/scale_y + 7/scale_size
 
         last_id = last_id + 1
         xlab = etree.Element("text",
@@ -574,7 +574,7 @@ class pdf2pub(inkex.Effect):
         ### 6f. y-axis label
         # [tick position] + [# of characters in longest tick]*[width of each character (~4.21px @ 8pt)] +
         #   [distance between tick and label (~6pt)]
-        ylab_x = ytick_x - max([len(el) for el in yticks])*4.3 - 15/scale_size
+        ylab_x = ytick_x - max([len(el) for el in yticks])*4.3*ticks_size/8 - 15/scale_size
         # ([x-axis position] + [plot height]/2) / scale_y
         ylab_y = (xaxis - plot_height/2)/scale_y
 
