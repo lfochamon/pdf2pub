@@ -120,8 +120,8 @@ class pdf2pub(inkex.Effect):
                 'stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:10;'
                 'stroke-dasharray:none;stroke-opacity:1')
         elif form == 'half':
-            width = 130
-            height = 98
+            width = 125
+            height = 94
             font_family = 'CMU Serif'
             font_color = '#262626'
             ticks_size = 7
@@ -317,6 +317,14 @@ class pdf2pub(inkex.Effect):
         root_node.set('height', '%.8f' % (height/plot_height*(se_y - nw_y)))
         root_node.set('preserveAspectRatio', 'none')
 
+        ### 2d. Evaluate scalings to compensate for viewbox resizing
+        # Scaling to compensate for distorted aspect ratio
+        scale_y = math.sqrt(float(width)/float(height)*plot_height/plot_width)
+        scale_x = 1/scale_y
+
+        # Absolute scaling to compensate for resizing
+        scale_size = width/plot_width*scale_x
+
 
         # 3. Get plot elements ################################################
         ### 3a. Get grid/plot elements
@@ -365,7 +373,10 @@ class pdf2pub(inkex.Effect):
 
             # Fix style
             for style in bbox_style.keys():
-                element_style[style] = bbox_style[style]
+                if style == 'stroke-width':
+                    element_style[style] = str(self.unittouu(bbox_style[style])/scale_size) + 'px'
+                else:
+                    element_style[style] = bbox_style[style]
 
             element.set('style', formatStyle(element_style))
 
@@ -375,7 +386,10 @@ class pdf2pub(inkex.Effect):
 
             # Fix style
             for style in grid_style.keys():
-                element_style[style] = grid_style[style]
+                if style == 'stroke-width':
+                    element_style[style] = str(self.unittouu(grid_style[style])/scale_size) + 'px'
+                else:
+                    element_style[style] = grid_style[style]
 
             element.set('style', formatStyle(element_style))
 
@@ -388,7 +402,7 @@ class pdf2pub(inkex.Effect):
                 element_style = parseStyle(element.get('style'))
 
                 # Fix thickness
-                element_style['stroke-width'] = str(plot_stroke_width) + 'px'
+                element_style['stroke-width'] = str(plot_stroke_width/scale_size) + 'px'
 
                 # Fix strokes
                 if color_pal is not None:
@@ -415,13 +429,6 @@ class pdf2pub(inkex.Effect):
 
 
         # 6. Ticks and labels #################################################
-        # Evaluate scaling to compensate for distorted aspect ratio
-        scale_y = math.sqrt(float(width)/float(height)*plot_height/plot_width)
-        scale_x = 1/scale_y
-
-        # Evaluate font scaling to compensate for resizing
-        scale_size = width/plot_width*scale_x
-
         ### 6a. Find bounding box left/bottom coordinates
         xaxis = 0
         yaxis = float('inf')
